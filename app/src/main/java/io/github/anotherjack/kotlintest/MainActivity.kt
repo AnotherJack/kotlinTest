@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.Toast
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Function3
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -22,9 +23,15 @@ class MainActivity : AppCompatActivity() {
 
         test.setOnClickListener {
             val intent = Intent(this,Main2Activity::class.java)
+            //rxjava方式
             AvoidOnResult(this)
                     .startForResult(intent,23)
+                    .subscribeOn(Schedulers.io())
+                    .doOnNext {
+                        Log.d("doOnNext thred --> ",Thread.currentThread().name)
+                    }
                     .subscribe {
+                        Log.d("subscribe thread --> ",Thread.currentThread().name)
                         if(it.resultCode == Activity.RESULT_OK){
                             val text = it.data.getStringExtra("text")
                             Toast.makeText(this,"fetched data -> "+text,Toast.LENGTH_SHORT).show()
@@ -33,6 +40,16 @@ class MainActivity : AppCompatActivity() {
                         }
 
                     }
+
+            //callback方式
+            AvoidOnResult(this).startForResult(intent,24,{ requestCode, resultCode, data ->
+                if (resultCode == Activity.RESULT_OK){
+                    val text = data.getStringExtra("text")
+                    Toast.makeText(this,"fetched data -> "+text,Toast.LENGTH_SHORT).show()
+                }else{
+                    Toast.makeText(this,"canceled",Toast.LENGTH_SHORT).show()
+                }
+            })
         }
 
         RxPermissions(this)

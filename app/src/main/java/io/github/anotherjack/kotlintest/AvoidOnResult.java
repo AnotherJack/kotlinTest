@@ -11,8 +11,8 @@ import io.reactivex.Observable;
  */
 
 public class AvoidOnResult {
-    static final String TAG = "AvoidOnResult";
-    AvoidOnResultFragment mAvoidOnResultFragment;
+    private static final String TAG = "AvoidOnResult";
+    private AvoidOnResultFragment mAvoidOnResultFragment;
 
     public AvoidOnResult(Activity activity) {
         mAvoidOnResultFragment = getAvoidOnResultFragment(activity);
@@ -40,5 +40,13 @@ public class AvoidOnResult {
 
     public Observable<ActivityResultInfo> startForResult(Intent intent, int requestCode){
         return mAvoidOnResultFragment.startForResult(intent, requestCode);
+    }
+
+    public void startForResult(Intent intent,int requestCode,Callback callback){
+        mAvoidOnResultFragment.startForResult(intent, requestCode, callback);
+    }
+
+    public interface Callback{
+        void onActivityResult(int requestCode, int resultCode, Intent data);
     }
 }
